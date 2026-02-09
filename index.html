@@ -13,21 +13,59 @@
 
         body {
             font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e8ba3 100%);
+            background: #000;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
         }
 
         .game-container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            background: #fff;
+            border: 8px solid #222;
+            box-shadow: 0 0 0 4px #444, 0 20px 60px rgba(0, 0, 0, 0.8);
             max-width: 900px;
             width: 100%;
             overflow: hidden;
+            position: relative;
+        }
+
+        /* 픽셀 아트 스타일 캐릭터 */
+        .pixel-character {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(to right,
+                #034ea2 0%, #034ea2 20%,
+                #ffc0cb 20%, #ffc0cb 40%,
+                #034ea2 40%, #034ea2 60%,
+                #222 60%, #222 80%,
+                #034ea2 80%, #034ea2 100%);
+            border: 2px solid #000;
+            margin: 0 auto 20px;
+            animation: characterBob 2s ease-in-out infinite;
+        }
+
+        @keyframes characterBob {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* 배경 애니메이션 */
+        .pixel-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(3, 78, 162, 0.03) 2px, rgba(3, 78, 162, 0.03) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(3, 78, 162, 0.03) 2px, rgba(3, 78, 162, 0.03) 4px);
+            pointer-events: none;
+            opacity: 0.5;
         }
 
         .game-header {
@@ -35,19 +73,69 @@
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255, 255, 255, 0.05) 10px,
+                rgba(255, 255, 255, 0.05) 20px
+            );
+            animation: scanlines 20s linear infinite;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
         }
 
         .game-title {
             font-size: 28px;
             font-weight: bold;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+            letter-spacing: 2px;
         }
 
         .game-subtitle {
             font-size: 14px;
             opacity: 0.9;
             font-style: italic;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 음악 컨트롤 */
+        .music-control {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .music-control:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
         }
 
         .stats-panel {
@@ -55,50 +143,92 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             padding: 25px;
-            background: #f8f9fa;
-            border-bottom: 2px solid #e0e0e0;
+            background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 4px solid #034ea2;
+            position: relative;
         }
 
         .stat-card {
             background: white;
             padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            border: 3px solid #222;
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
             text-align: center;
             transition: transform 0.2s;
+            position: relative;
         }
 
         .stat-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(45deg, #034ea2, #0066cc);
+            border-radius: 8px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
         }
 
         .stat-label {
-            font-size: 12px;
+            font-size: 13px;
             color: #666;
             margin-bottom: 5px;
-            font-weight: 600;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .stat-value {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
             color: #034ea2;
+            text-shadow: 2px 2px 0 rgba(3, 78, 162, 0.1);
         }
 
         .stat-bar {
             width: 100%;
-            height: 8px;
+            height: 10px;
             background: #e0e0e0;
-            border-radius: 4px;
+            border: 2px solid #222;
             margin-top: 8px;
             overflow: hidden;
+            position: relative;
         }
 
         .stat-bar-fill {
             height: 100%;
             background: linear-gradient(90deg, #034ea2, #0066cc);
-            transition: width 0.5s ease;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
 
         .info-panel {
@@ -107,19 +237,24 @@
             gap: 15px;
             padding: 20px 25px;
             background: white;
-            border-bottom: 2px solid #e0e0e0;
+            border-bottom: 4px solid #034ea2;
         }
 
         .info-item {
             display: flex;
             align-items: center;
             gap: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border: 2px solid #e0e0e0;
         }
 
         .info-label {
-            font-size: 14px;
+            font-size: 13px;
             color: #666;
-            font-weight: 600;
+            font-weight: 700;
+            text-transform: uppercase;
         }
 
         .info-value {
@@ -133,77 +268,115 @@
             background: linear-gradient(135deg, #ffd700, #ffed4e);
             color: #333;
             padding: 5px 15px;
-            border-radius: 20px;
+            border-radius: 15px;
             font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border: 2px solid #d4af37;
+            box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+            text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
         }
 
+        /* 대화창 스타일 (포켓몬 스타일) */
         .event-panel {
-            padding: 30px;
-            min-height: 300px;
+            padding: 0;
+            min-height: 400px;
+            background: #000;
+            position: relative;
+        }
+
+        .dialogue-box {
+            background: white;
+            border: 8px solid #222;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px;
+            position: relative;
+            box-shadow: inset 0 0 0 4px #fff, inset 0 0 0 8px #222;
+        }
+
+        .dialogue-box::before {
+            content: '▼';
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            color: #034ea2;
+            font-size: 20px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
         }
 
         .event-title {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: bold;
             color: #034ea2;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #034ea2;
+            border-bottom: 3px solid #034ea2;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .event-description {
-            font-size: 16px;
-            line-height: 1.8;
-            color: #333;
+            font-size: 17px;
+            line-height: 1.9;
+            color: #222;
             margin-bottom: 25px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border-left: 4px solid #034ea2;
+            min-height: 120px;
+            font-weight: 500;
         }
 
         .choices-container {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
+            margin: 20px;
         }
 
         .choice-button {
             background: white;
-            border: 2px solid #034ea2;
+            border: 4px solid #034ea2;
             color: #034ea2;
             padding: 18px 25px;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s;
             text-align: left;
-            font-weight: 600;
+            font-weight: 700;
             position: relative;
-            overflow: hidden;
+            box-shadow: 4px 4px 0 rgba(3, 78, 162, 0.3);
         }
 
         .choice-button::before {
-            content: '';
+            content: '▶';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s;
+            left: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: all 0.3s;
+            color: #034ea2;
+            font-size: 20px;
         }
 
         .choice-button:hover::before {
-            left: 100%;
+            left: 10px;
+            opacity: 1;
         }
 
         .choice-button:hover {
             background: #034ea2;
             color: white;
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(3, 78, 162, 0.3);
+            transform: translateX(10px);
+            box-shadow: 6px 6px 0 rgba(3, 78, 162, 0.4);
+        }
+
+        .choice-button:active {
+            transform: translateX(10px) translateY(2px);
+            box-shadow: 2px 2px 0 rgba(3, 78, 162, 0.4);
         }
 
         .choice-effect {
@@ -212,39 +385,49 @@
             margin-top: 8px;
             opacity: 0.8;
             font-weight: normal;
+            font-style: italic;
         }
 
-        .game-over-panel {
+        .game-over-panel, .ending-panel {
             text-align: center;
             padding: 50px 30px;
+            background: white;
         }
 
         .game-over-title {
-            font-size: 36px;
+            font-size: 42px;
             font-weight: bold;
             color: #dc3545;
             margin-bottom: 20px;
+            text-shadow: 3px 3px 0 rgba(220, 53, 69, 0.2);
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
         }
 
         .game-over-reason {
             font-size: 18px;
             color: #666;
             margin-bottom: 30px;
-            line-height: 1.6;
-        }
-
-        .ending-panel {
-            text-align: center;
-            padding: 50px 30px;
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            line-height: 1.8;
         }
 
         .ending-title {
-            font-size: 36px;
+            font-size: 42px;
             font-weight: bold;
             color: #034ea2;
             margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            text-shadow: 3px 3px 0 rgba(3, 78, 162, 0.2);
+            animation: bounce 1s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
         }
 
         .ending-description {
@@ -257,37 +440,45 @@
         .restart-button {
             background: linear-gradient(135deg, #034ea2, #0066cc);
             color: white;
-            border: none;
+            border: 4px solid #222;
             padding: 15px 40px;
-            border-radius: 25px;
-            font-size: 18px;
+            border-radius: 8px;
+            font-size: 20px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(3, 78, 162, 0.3);
+            transition: all 0.3s;
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+            text-transform: uppercase;
         }
 
         .restart-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(3, 78, 162, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .restart-button:active {
+            transform: translateY(0);
+            box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
         }
 
         .start-screen {
             text-align: center;
             padding: 50px 30px;
+            background: white;
         }
 
         .start-title {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: bold;
             color: #034ea2;
             margin-bottom: 20px;
+            text-shadow: 3px 3px 0 rgba(3, 78, 162, 0.1);
         }
 
         .start-description {
-            font-size: 16px;
+            font-size: 17px;
             color: #666;
-            line-height: 1.8;
+            line-height: 1.9;
             margin-bottom: 30px;
             max-width: 600px;
             margin-left: auto;
@@ -297,19 +488,26 @@
         .start-button {
             background: linear-gradient(135deg, #034ea2, #0066cc);
             color: white;
-            border: none;
+            border: 4px solid #222;
             padding: 20px 50px;
-            border-radius: 30px;
-            font-size: 20px;
+            border-radius: 10px;
+            font-size: 24px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(3, 78, 162, 0.3);
+            transition: all 0.3s;
+            box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         .start-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(3, 78, 162, 0.4);
+            transform: translateY(-5px);
+            box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .start-button:active {
+            transform: translateY(0);
+            box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
         }
 
         .promotion-animation {
@@ -318,7 +516,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -328,26 +526,41 @@
 
         .promotion-content {
             background: white;
-            padding: 50px;
+            border: 8px solid #ffd700;
+            padding: 60px;
             border-radius: 20px;
             text-align: center;
-            animation: scaleIn 0.5s;
+            animation: promotionPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+        }
+
+        @keyframes promotionPop {
+            0% { transform: scale(0) rotate(-180deg); }
+            100% { transform: scale(1) rotate(0deg); }
         }
 
         .promotion-text {
-            font-size: 36px;
+            font-size: 40px;
             font-weight: bold;
             color: #034ea2;
             margin-bottom: 20px;
+            text-shadow: 2px 2px 0 rgba(3, 78, 162, 0.2);
         }
 
         .promotion-rank {
-            font-size: 48px;
+            font-size: 56px;
             font-weight: bold;
             background: linear-gradient(135deg, #ffd700, #ffed4e);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.1);
+            animation: rankGlow 1s infinite alternate;
+        }
+
+        @keyframes rankGlow {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.3); }
         }
 
         @keyframes fadeIn {
@@ -355,13 +568,20 @@
             to { opacity: 1; }
         }
 
-        @keyframes scaleIn {
-            from { transform: scale(0.5); }
-            to { transform: scale(1); }
-        }
-
         .hidden {
             display: none;
+        }
+
+        /* 타이핑 효과 */
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        .typing-text {
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typing 2s steps(40, end);
         }
 
         @media (max-width: 768px) {
@@ -374,7 +594,7 @@
             }
 
             .game-title {
-                font-size: 22px;
+                font-size: 20px;
             }
 
             .choice-button {
@@ -386,22 +606,26 @@
 </head>
 <body>
     <div class="game-container">
+        <div class="pixel-background"></div>
+
         <div class="game-header">
+            <button class="music-control" id="musicToggle" onclick="toggleMusic()">🔊 음악 ON</button>
             <div class="game-title">신입사원 키우기</div>
             <div class="game-subtitle">신입사원 하나를 키우는 데는 온 마을이 필요하다</div>
         </div>
 
         <!-- 시작 화면 -->
         <div id="startScreen" class="start-screen">
+            <div class="pixel-character"></div>
             <div class="start-title">🏢 삼성전자 입사를 축하합니다!</div>
             <div class="start-description">
                 당신은 오늘부터 삼성전자의 신입사원입니다.<br>
                 평범한 사원에서 시작해 임원까지 승진하고,<br>
                 차세대 메모리 반도체 HBM4를 개발하여<br>
                 회사를 시가총액 천조원 기업으로 성장시키세요!<br><br>
-                <strong>주의: 업무능력, 인맥, 체력 중 하나라도 0이 되면 게임오버입니다!</strong>
+                <strong>⚠️ 업무능력, 인맥, 체력 중 하나라도 0이 되면 게임오버입니다!</strong>
             </div>
-            <button class="start-button" onclick="startGame()">게임 시작</button>
+            <button class="start-button" onclick="startGame()">Press Start</button>
         </div>
 
         <!-- 게임 메인 화면 -->
@@ -435,7 +659,7 @@
             <div class="info-panel">
                 <div class="info-item">
                     <span class="info-label">현재 직급:</span>
-                    <span class="rank-badge" id="currentRank">사원</span>
+                    <span class="rank-badge" id="currentRank">면접</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">HBM 프로젝트:</span>
@@ -447,483 +671,640 @@
                 </div>
                 <div class="info-item">
                     <span class="info-label">진행도:</span>
-                    <span class="info-value" id="eventProgress">1/5</span>
+                    <span class="info-value" id="eventProgress">0/1</span>
                 </div>
             </div>
 
             <!-- 이벤트 패널 -->
             <div class="event-panel">
-                <div class="event-title" id="eventTitle">이벤트 제목</div>
-                <div class="event-description" id="eventDescription">이벤트 설명</div>
+                <div class="dialogue-box">
+                    <div class="event-title" id="eventTitle">이벤트 제목</div>
+                    <div class="event-description" id="eventDescription">이벤트 설명</div>
+                </div>
                 <div class="choices-container" id="choicesContainer"></div>
             </div>
         </div>
     </div>
 
     <script>
+        // Web Audio API를 사용한 8bit 음악 생성
+        let audioContext;
+        let musicPlaying = false;
+        let oscillators = [];
+        let gainNode;
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                gainNode = audioContext.createGain();
+                gainNode.gain.value = 0.1;
+                gainNode.connect(audioContext.destination);
+            }
+        }
+
+        function playNote(frequency, startTime, duration) {
+            const osc = audioContext.createOscillator();
+            const noteGain = audioContext.createGain();
+
+            osc.type = 'square'; // 8bit 사운드
+            osc.frequency.value = frequency;
+
+            noteGain.gain.setValueAtTime(0.3, startTime);
+            noteGain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+
+            osc.connect(noteGain);
+            noteGain.connect(gainNode);
+
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+
+            return osc;
+        }
+
+        function playBackgroundMusic() {
+            if (!audioContext || musicPlaying) return;
+
+            musicPlaying = true;
+            const now = audioContext.currentTime;
+
+            // 간단한 8bit 멜로디 (도레미파솔 반복)
+            const melody = [
+                { freq: 523.25, time: 0.0, dur: 0.2 },    // C
+                { freq: 587.33, time: 0.2, dur: 0.2 },    // D
+                { freq: 659.25, time: 0.4, dur: 0.2 },    // E
+                { freq: 698.46, time: 0.6, dur: 0.2 },    // F
+                { freq: 783.99, time: 0.8, dur: 0.4 },    // G
+                { freq: 698.46, time: 1.2, dur: 0.2 },    // F
+                { freq: 659.25, time: 1.4, dur: 0.2 },    // E
+                { freq: 587.33, time: 1.6, dur: 0.4 },    // D
+            ];
+
+            melody.forEach(note => {
+                playNote(note.freq, now + note.time, note.dur);
+            });
+
+            // 2초마다 반복
+            setTimeout(() => {
+                musicPlaying = false;
+                if (document.getElementById('musicToggle').textContent.includes('ON')) {
+                    playBackgroundMusic();
+                }
+            }, 2000);
+        }
+
+        function toggleMusic() {
+            initAudio();
+            const btn = document.getElementById('musicToggle');
+
+            if (btn.textContent.includes('ON')) {
+                btn.textContent = '🔇 음악 OFF';
+                musicPlaying = false;
+            } else {
+                btn.textContent = '🔊 음악 ON';
+                playBackgroundMusic();
+            }
+        }
+
+        function playSound(type) {
+            if (!audioContext) return;
+
+            const now = audioContext.currentTime;
+
+            if (type === 'select') {
+                playNote(880, now, 0.1); // A5
+            } else if (type === 'success') {
+                playNote(523.25, now, 0.1);
+                playNote(659.25, now + 0.1, 0.1);
+                playNote(783.99, now + 0.2, 0.2);
+            } else if (type === 'fail') {
+                playNote(440, now, 0.1);
+                playNote(392, now + 0.1, 0.1);
+                playNote(349.23, now + 0.2, 0.3);
+            }
+        }
+
         // 게임 상태
         const gameState = {
-            rank: 0, // 0: 사원, 1: 대리, 2: 과장, 3: 차장, 4: 부장, 5: 임원
+            rank: -1, // -1: 면접, 0: 사원, 1: 대리, 2: 과장, 3: 차장, 4: 부장, 5: 임원
             work: 50,
             network: 50,
             health: 50,
-            hbmLevel: 0, // 0: 준비중, 1: HBM2, 2: HBM3, 3: HBM3E, 4: HBM4
+            hbmLevel: 0,
             marketCap: 300,
             currentEventIndex: 0,
             eventsCompletedInRank: 0
         };
 
-        const ranks = ['사원', '대리', '과장', '차장', '부장', '임원'];
+        const ranks = ['면접', '사원', '대리', '과장', '차장', '부장', '임원'];
         const hbmStages = ['준비 중', 'HBM2 개발', 'HBM3 개발', 'HBM3E 개발', 'HBM4 완성!'];
 
-        // 이벤트 데이터
+        // 향상된 이벤트 데이터
         const events = {
-            0: [ // 사원
+            '-1': [ // 면접 (프롤로그)
                 {
-                    title: "첫 출근날, 사수를 만나다",
-                    description: "첫 출근날입니다. 사수 김대리님이 당신을 맞이합니다. '우리 팀은 일이 많아. 각오해.' 김대리님의 표정이 심각합니다.",
+                    title: "최종 면접 - 곤란한 질문",
+                    description: "삼성전자 최종 면접장. 임원 3명이 당신을 바라보고 있습니다.\n\n임원: \"우리 회사 HBM 사업부가 작년에 엔비디아 납품에서 탈락했습니다. SK하이닉스에 밀린 거죠. 이런 상황에서도 우리 회사에 지원한 이유가 뭡니까?\"\n\n냉정한 분위기가 흐릅니다. 어떻게 답하시겠습니까?",
                     choices: [
                         {
-                            text: "열심히 배우겠습니다! 무엇부터 시작하면 될까요?",
-                            effect: "업무 +15, 인맥 +10, 체력 -5",
-                            result: { work: 15, network: 10, health: -5 }
+                            text: "실패를 경험한 조직이야말로 진짜 성장 가능성이 있습니다. 저는 삼성의 역전 드라마에 동참하고 싶습니다.",
+                            effect: "업무 +15, 인맥 +20, 체력 -5",
+                            result: { work: 15, network: 20, health: -5 }
                         },
                         {
-                            text: "제가 할 수 있는 일이 있다면 바로 시작하겠습니다.",
-                            effect: "업무 +10, 인맥 +5, 체력 0",
-                            result: { work: 10, network: 5, health: 0 }
+                            text: "삼성의 기술력과 자본력은 여전히 업계 최고입니다. 이번 실패는 일시적이며, 곧 만회할 것입니다.",
+                            effect: "업무 +20, 인맥 +10, 체력 0",
+                            result: { work: 20, network: 10, health: 0 }
                         },
                         {
-                            text: "오늘은 첫날이니 천천히 적응하고 싶습니다.",
-                            effect: "업무 -5, 인맥 -15, 체력 +10",
-                            result: { work: -5, network: -15, health: 10 }
-                        }
-                    ]
-                },
-                {
-                    title: "첫 야근의 시작",
-                    description: "입사 1주일째, 팀 프로젝트 마감이 다가옵니다. 이미 밤 10시인데 팀원들은 아무도 퇴근하지 않고 있습니다.",
-                    choices: [
-                        {
-                            text: "같이 남아서 돕겠습니다. 배울 기회입니다!",
-                            effect: "업무 +10, 인맥 +15, 체력 -15",
-                            result: { work: 10, network: 15, health: -15 }
-                        },
-                        {
-                            text: "제가 할 수 있는 일만 처리하고 퇴근합니다.",
-                            effect: "업무 +5, 인맥 -10, 체력 +5",
-                            result: { work: 5, network: -10, health: 5 }
-                        }
-                    ]
-                },
-                {
-                    title: "실수와 배움",
-                    description: "중요한 보고서에서 실수를 했습니다. 팀장님이 불같이 화를 내십니다. '신입이라고 무조건 봐주는 게 아니야!'",
-                    choices: [
-                        {
-                            text: "죄송합니다. 바로 수정하고 다시는 실수하지 않겠습니다.",
-                            effect: "업무 +15, 인맥 0, 체력 -10",
-                            result: { work: 15, network: 0, health: -10 }
-                        },
-                        {
-                            text: "제 잘못입니다. 선배님께 조언을 구하겠습니다.",
-                            effect: "업무 +10, 인맥 +10, 체력 -5",
-                            result: { work: 10, network: 10, health: -5 }
-                        },
-                        {
-                            text: "신입인데 너무 심하신 거 아닙니까?",
+                            text: "사실 SK하이닉스도 지원했는데... 아니, 삼성이 최우선 지망입니다!",
                             effect: "업무 -20, 인맥 -30, 체력 -10",
                             result: { work: -20, network: -30, health: -10 }
                         }
                     ]
-                },
+                }
+            ],
+            0: [ // 사원
                 {
-                    title: "회식 자리",
-                    description: "팀 회식이 있는 날입니다. 하지만 내일 아침 일찍 중요한 회의가 있습니다. 팀장님이 '오늘은 끝까지 있어야 해'라고 말씀하십니다.",
+                    title: "첫 출근날, 사수를 만나다",
+                    description: "2024년 1월 2일, 첫 출근날입니다. 사수 김대리님이 당신을 맞이합니다.\n\n김대리: \"작년에 HBM3 엔비디아 납품 탈락하고 팀 분위기가 최악이야. 우리 팀은 일이 엄청 많아. 각오해.\"\n\n표정이 심각합니다. 동기들은 다들 여유로운 부서에 배치된 것 같은데...",
                     choices: [
                         {
-                            text: "내일을 위해 1차만 참석하고 먼저 나갑니다.",
-                            effect: "업무 +5, 인맥 -5, 체력 +10",
-                            result: { work: 5, network: -5, health: 10 }
+                            text: "열심히 배우겠습니다! 무엇부터 시작하면 될까요? 힘든 부서라도 성장의 기회입니다!",
+                            effect: "업무 +15, 인맥 +10, 체력 -10",
+                            result: { work: 15, network: 10, health: -10 }
                         },
                         {
-                            text: "끝까지 자리를 지킵니다. 인맥이 중요합니다.",
-                            effect: "업무 -5, 인맥 +20, 체력 -15",
-                            result: { work: -5, network: 20, health: -15 }
+                            text: "제가 할 수 있는 일이 있다면 바로 시작하겠습니다. 일단 해보겠습니다.",
+                            effect: "업무 +10, 인맥 +5, 체력 -5",
+                            result: { work: 10, network: 5, health: -5 }
+                        },
+                        {
+                            text: "...이런 얘기를 신입한테 하시면 어떡합니까? 좀 부담스러운데요.",
+                            effect: "업무 -5, 인맥 -20, 체력 +5",
+                            result: { work: -5, network: -20, health: 5 }
                         }
                     ]
                 },
                 {
-                    title: "첫 프로젝트 완성",
-                    description: "드디어 첫 프로젝트를 마쳤습니다. 팀장님이 '수고했어. 이제 진짜 일을 시작해볼까?'라고 말씀하십니다. 대리 승진이 눈앞입니다.",
+                    title: "새벽 3시의 긴급 회의",
+                    description: "입사 2주차 금요일 밤 11시. 퇴근하려는데 팀장님의 긴급 소집.\n\n팀장: \"미국 본사에서 월요일 오전까지 HBM3E 기술 검토 보고서를 요청했어. 주말 반납이야.\"\n\n동기들 단톡방에는 강남 클럽 사진이 올라오고 있습니다...",
                     choices: [
                         {
-                            text: "더 큰 책임을 맡을 준비가 되어 있습니다!",
-                            effect: "업무 +20, 인맥 +10, 체력 -5",
-                            result: { work: 20, network: 10, health: -5 }
+                            text: "같이 남아서 돕겠습니다. 주말에 배울 수 있는 좋은 기회입니다!",
+                            effect: "업무 +15, 인맥 +20, 체력 -25",
+                            result: { work: 15, network: 20, health: -25 }
                         },
                         {
-                            text: "차근차근 배우며 성장하겠습니다.",
-                            effect: "업무 +15, 인맥 +5, 체력 +5",
-                            result: { work: 15, network: 5, health: 5 }
+                            text: "제가 할 수 있는 파트만 처리하고 토요일 오전에는 나가겠습니다.",
+                            effect: "업무 +5, 인맥 -10, 체력 -10",
+                            result: { work: 5, network: -10, health: -10 }
+                        },
+                        {
+                            text: "죄송하지만 이번 주말에는 약속이 있습니다...",
+                            effect: "업무 -10, 인맥 -25, 체력 +10",
+                            result: { work: -10, network: -25, health: 10 }
+                        }
+                    ]
+                },
+                {
+                    title: "실수 - 보고서의 치명적 오류",
+                    description: "당신이 작성한 HBM 수율 보고서에 치명적인 오류가 있었습니다. 95%를 59%로 잘못 쓴 것입니다.\n\n팀장: \"이거 임원 보고까지 올라갔어! 신입이라고 무조건 봐주는 게 아니야!\"\n\n팀 분위기가 얼어붙었습니다. 선배들의 시선이 따갑습니다.",
+                    choices: [
+                        {
+                            text: "죄송합니다. 지금 즉시 수정본 작성하고 재발방지 대책을 세우겠습니다.",
+                            effect: "업무 +20, 인맥 -5, 체력 -15",
+                            result: { work: 20, network: -5, health: -15 }
+                        },
+                        {
+                            text: "제 잘못입니다. 김대리님께 검수를 부탁드렸어야 했는데... 도움을 구하겠습니다.",
+                            effect: "업무 +10, 인맥 +10, 체력 -10",
+                            result: { work: 10, network: 10, health: -10 }
+                        },
+                        {
+                            text: "하지만 이런 중요한 보고서를 신입에게 맡기신 것도...",
+                            effect: "업무 -25, 인맥 -40, 체력 -15",
+                            result: { work: -25, network: -40, health: -15 }
+                        }
+                    ]
+                },
+                {
+                    title: "회식 자리의 압박",
+                    description: "팀 회식. 3차까지 이어지고 있습니다. 이미 새벽 2시.\n\n부장: \"요즘 젊은 애들은 회식 문화 이해를 못 해. 신입 때는 이런 자리가 인맥 쌓는 기회라고!\"\n\n내일 오전 9시에 중요한 기술 교육이 있습니다. 집까지 1시간 30분...",
+                    choices: [
+                        {
+                            text: "내일 교육 때문에 먼저 나가겠습니다. 죄송합니다.",
+                            effect: "업무 +10, 인맥 -15, 체력 +15",
+                            result: { work: 10, network: -15, health: 15 }
+                        },
+                        {
+                            text: "끝까지 자리를 지킵니다. 다음날 교육은... 어떻게든 버텨야죠.",
+                            effect: "업무 -10, 인맥 +25, 체력 -30",
+                            result: { work: -10, network: 25, health: -30 }
+                        }
+                    ]
+                },
+                {
+                    title: "첫 프로젝트 - 대리 승진의 기회",
+                    description: "입사 11개월째. 드디어 첫 프로젝트를 완수했습니다.\n\n팀장: \"고생했어. 이제 진짜 일을 시작해볼까? 다음 달에 대리 승진 심사가 있어. 네가 후보야.\"\n\n하지만 경쟁자가 있습니다. 서울대 전기공학과 출신의 동기...",
+                    choices: [
+                        {
+                            text: "더 큰 책임을 맡을 준비가 되어 있습니다! 승진에 필요한 것이라면 뭐든 하겠습니다!",
+                            effect: "업무 +25, 인맥 +15, 체력 -10",
+                            result: { work: 25, network: 15, health: -10 }
+                        },
+                        {
+                            text: "차근차근 배우며 성장하겠습니다. 실력으로 보여드리겠습니다.",
+                            effect: "업무 +20, 인맥 +5, 체력 +5",
+                            result: { work: 20, network: 5, health: 5 }
                         }
                     ]
                 }
             ],
             1: [ // 대리
                 {
-                    title: "대리 승진, 새로운 책임",
-                    description: "드디어 대리로 승진했습니다! 이제 작은 프로젝트를 맡게 되었습니다. 후배 사원 2명을 이끌어야 합니다.",
+                    title: "대리 승진 - 새로운 책임",
+                    description: "2025년 1월. 드디어 대리로 승진했습니다!\n\n이제 HBM 수율 개선 프로젝트를 맡게 되었습니다. 신입 사원 2명이 당신을 올려다보고 있습니다.\n\n후배1: \"대리님, 앞으로 잘 부탁드립니다!\"\n\n1년 전의 당신 모습이 떠오릅니다.",
                     choices: [
                         {
-                            text: "후배들과 적극적으로 소통하며 협업합니다.",
-                            effect: "업무 +10, 인맥 +15, 체력 -5",
-                            result: { work: 10, network: 15, health: -5 }
+                            text: "후배들과 적극적으로 소통하며 함께 성장하겠습니다. 우리 팀워크가 중요합니다.",
+                            effect: "업무 +15, 인맥 +20, 체력 -10",
+                            result: { work: 15, network: 20, health: -10 }
                         },
                         {
-                            text: "완벽한 업무 성과에 집중합니다.",
-                            effect: "업무 +20, 인맥 -5, 체력 -10",
-                            result: { work: 20, network: -5, health: -10 }
-                        },
-                        {
-                            text: "후배들에게 일을 맡기고 관리만 합니다.",
-                            effect: "업무 -10, 인맥 -15, 체력 +15",
-                            result: { work: -10, network: -15, health: 15 }
+                            text: "완벽한 업무 성과에 집중하겠습니다. 결과로 후배들을 이끌겠습니다.",
+                            effect: "업무 +25, 인맥 -5, 체력 -15",
+                            result: { work: 25, network: -5, health: -15 }
                         }
                     ]
                 },
                 {
-                    title: "타부서와의 협업",
-                    description: "타부서와 협업 프로젝트를 진행하는데 의견이 충돌합니다. 상대팀은 자신들의 방식을 고집하고 있습니다.",
+                    title: "동기의 조롱 - 하이닉스의 유혹",
+                    description: "2025년 7월. 대학 동기 모임. 하이닉스 다니는 친구가 당신을 보더니 비웃습니다.\n\n친구: \"야, 너희 회사 HBM3 엔비디아 납품 또 탈락했대? ㅋㅋ 삼성은 이제 끝났어. 우리 회사는 HBM3E 독점 공급 중인데~ 너 계속 거기 다닐 거야? 내가 추천해줄게, 우리 쪽으로 와. 삼성에 미련 갖지 마.\"\n\n주변 동기들도 걱정스러운 눈으로 당신을 봅니다. SNS에는 하이닉스 주가 급등 기사가...",
                     choices: [
                         {
-                            text: "논리적으로 우리 방식의 장점을 설명합니다.",
-                            effect: "업무 +15, 인맥 +10, 체력 -10",
-                            result: { work: 15, network: 10, health: -10 }
+                            text: "네가 알지도 못하면서. 삼성은 곧 역전할 거야. 두고 봐.",
+                            effect: "업무 +20, 인맥 -10, 체력 -15",
+                            result: { work: 20, network: -10, health: -15 }
                         },
                         {
-                            text: "타협안을 제시하여 양측을 만족시킵니다.",
-                            effect: "업무 +5, 인맥 +20, 체력 -5",
-                            result: { work: 5, network: 20, health: -5 }
+                            text: "...사실 고민 중이야. 정보 좀 알려줘.",
+                            effect: "업무 -15, 인맥 +15, 체력 +10",
+                            result: { work: -15, network: 15, health: 10 }
                         },
                         {
-                            text: "상대팀 방식을 따릅니다. 갈등은 피하는 게 낫습니다.",
-                            effect: "업무 -10, 인맥 +5, 체력 +10",
-                            result: { work: -10, network: 5, health: 10 }
+                            text: "실패한 조직에서 배우는 게 더 많아. 나는 삼성의 역전 스토리를 직접 만들 거야.",
+                            effect: "업무 +30, 인맥 +5, 체력 -20",
+                            result: { work: 30, network: 5, health: -20 }
                         }
                     ]
                 },
                 {
-                    title: "혁신 아이디어",
-                    description: "업무 프로세스 개선 아이디어가 떠올랐습니다. 하지만 기존 방식을 고수하는 선배들이 많습니다.",
+                    title: "타부서와의 갈등",
+                    description: "HBM 수율 개선을 위해 생산팀과 협업해야 합니다. 하지만 생산팀장이 비협조적입니다.\n\n생산팀장: \"우리 팀은 바빠. 너희 개발팀 요청사항 들어주다간 생산 일정 다 틀어져. 현장을 뭘 알아?\"\n\n당신의 프로젝트가 막혔습니다.",
                     choices: [
                         {
-                            text: "과장님께 보고하고 정식으로 제안합니다.",
-                            effect: "업무 +20, 인맥 +5, 체력 -10",
-                            result: { work: 20, network: 5, health: -10 }
+                            text: "데이터로 설득합니다. 우리 방식이 장기적으로 생산성을 높인다는 것을 증명하겠습니다.",
+                            effect: "업무 +20, 인맥 +15, 체력 -15",
+                            result: { work: 20, network: 15, health: -15 }
                         },
                         {
-                            text: "팀원들과 먼저 공유하고 의견을 모읍니다.",
-                            effect: "업무 +10, 인맥 +15, 체력 -5",
-                            result: { work: 10, network: 15, health: -5 }
+                            text: "타협안을 제시합니다. 생산 일정에 영향 없는 범위로 테스트를 축소하겠습니다.",
+                            effect: "업무 +10, 인맥 +20, 체력 -10",
+                            result: { work: 10, network: 20, health: -10 }
                         },
                         {
-                            text: "괜한 파장을 일으키지 않고 조용히 넘어갑니다.",
-                            effect: "업무 -5, 인맥 0, 체력 +10",
-                            result: { work: -5, network: 0, health: 10 }
+                            text: "임원에게 에스컬레이션합니다. 이건 회사 차원의 문제입니다.",
+                            effect: "업무 +15, 인맥 -15, 체력 -5",
+                            result: { work: 15, network: -15, health: -5 }
                         }
                     ]
                 },
                 {
-                    title: "중요한 선택",
-                    description: "두 개의 프로젝트 중 하나를 선택해야 합니다. A는 안정적이지만 평범하고, B는 도전적이지만 실패 위험이 있습니다.",
+                    title: "혁신 아이디어 - 리스크와 기회",
+                    description: "밤샘 야근 중 당신은 HBM 적층 공정의 혁신적인 아이디어를 떠올렸습니다.\n\n하지만 이건 기존 방식과 완전히 다릅니다. 실패하면 당신의 커리어에 타격이... 하지만 성공하면 게임 체인저가 될 수 있습니다.\n\n과장님: \"흥미롭긴 한데... 검증되지 않은 방식이라 리스크가 크네. 네가 책임질 수 있어?\"",
                     choices: [
                         {
-                            text: "프로젝트 B를 선택합니다. 도전이 성장의 기회입니다!",
-                            effect: "업무 +25, 인맥 +10, 체력 -20",
-                            result: { work: 25, network: 10, health: -20 }
+                            text: "예, 책임지겠습니다. 이게 삼성이 다시 일어설 기회입니다. 제 커리어를 걸겠습니다.",
+                            effect: "업무 +35, 인맥 +10, 체력 -25",
+                            result: { work: 35, network: 10, health: -25 }
                         },
                         {
-                            text: "프로젝트 A를 선택합니다. 확실한 성과가 중요합니다.",
-                            effect: "업무 +10, 인맥 +5, 체력 0",
-                            result: { work: 10, network: 5, health: 0 }
+                            text: "소규모 파일럿 테스트부터 시작하겠습니다. 단계적으로 검증하겠습니다.",
+                            effect: "업무 +20, 인맥 +15, 체력 -10",
+                            result: { work: 20, network: 15, health: -10 }
+                        },
+                        {
+                            text: "...생각해보니 너무 위험한 것 같습니다. 보수적으로 가겠습니다.",
+                            effect: "업무 -10, 인맥 -5, 체력 +10",
+                            result: { work: -10, network: -5, health: 10 }
                         }
                     ]
                 }
             ],
             2: [ // 과장
                 {
-                    title: "과장 승진과 HBM 프로젝트",
-                    description: "과장으로 승진했습니다! 그리고 회사의 차세대 전략 프로젝트인 HBM(고대역폭 메모리) 개발팀에 합류하게 되었습니다. HBM2 개발이 시작됩니다.",
+                    title: "과장 승진 - HBM 프로젝트의 핵심",
+                    description: "2026년 3월. 과장으로 승진했습니다!\n\n그리고 회사의 차세대 전략 프로젝트인 'HBM 재도약 프로젝트'의 핵심 멤버로 발탁되었습니다. HBM3E 개선과 HBM4 개발을 동시에 추진해야 합니다.\n\nCTO: \"자네의 혁신 아이디어가 임원진을 설득시켰어. 이번이 삼성의 마지막 기회야.\"",
                     choices: [
                         {
-                            text: "HBM 기술 스터디에 올인합니다. 전문성이 핵심입니다!",
-                            effect: "업무 +25, 인맥 0, 체력 -15",
-                            result: { work: 25, network: 0, health: -15, hbm: 1, marketCap: 20 }
+                            text: "HBM4 기술 스터디에 올인합니다. 세계 최초가 목표입니다!",
+                            effect: "업무 +30, 인맥 +5, 체력 -20",
+                            result: { work: 30, network: 5, health: -20, hbm: 1, marketCap: 30 }
                         },
                         {
-                            text: "팀 빌딩과 기술 학습을 병행합니다.",
-                            effect: "업무 +15, 인맥 +15, 체력 -10",
-                            result: { work: 15, network: 15, health: -10, hbm: 1, marketCap: 20 }
+                            text: "팀 빌딩과 기술 개발을 균형있게 진행하겠습니다.",
+                            effect: "업무 +20, 인맥 +20, 체력 -15",
+                            result: { work: 20, network: 20, health: -15, hbm: 1, marketCap: 30 }
                         }
                     ]
                 },
                 {
-                    title: "기술적 난관",
-                    description: "HBM2 개발 중 기술적 문제가 발생했습니다. 해결 방법이 명확하지 않습니다. 마감은 다가오고 있습니다.",
+                    title: "기술적 위기 - 수율 50% 벽",
+                    description: "HBM3E 개발 중 치명적인 문제가 발생했습니다. 수율이 50%를 넘지 못합니다.\n\n엔지니어: \"과장님, TSV(실리콘 관통 전극) 공정에서 계속 불량이 나옵니다. 이론상으론 되어야 하는데...\"\n\n마감은 3개월 후. 임원진은 당신을 신뢰하고 있습니다. 실패는 허용되지 않습니다.",
                     choices: [
                         {
-                            text: "밤샘 야근으로 직접 해결책을 찾습니다.",
-                            effect: "업무 +20, 인맥 +5, 체력 -25",
-                            result: { work: 20, network: 5, health: -25 }
+                            text: "밤샘 야근으로 직접 해결책을 찾습니다. 팀원들과 함께 공정을 처음부터 다시 검토합니다.",
+                            effect: "업무 +25, 인맥 +10, 체력 -30",
+                            result: { work: 25, network: 10, health: -30 }
                         },
                         {
-                            text: "외부 전문가 자문을 받고 팀원들과 해결합니다.",
-                            effect: "업무 +15, 인맥 +20, 체력 -10",
-                            result: { work: 15, network: 20, health: -10 }
+                            text: "외부 전문가 자문을 받고 TSMC 협력을 타진합니다. 자존심보다 성공이 중요합니다.",
+                            effect: "업무 +20, 인맥 +20, 체력 -15",
+                            result: { work: 20, network: 20, health: -15 }
                         },
                         {
-                            text: "마감 연장을 요청합니다.",
-                            effect: "업무 -10, 인맥 -15, 체력 +10",
-                            result: { work: -10, network: -15, health: 10 }
+                            text: "마감 연장을 요청합니다. 품질이 우선입니다.",
+                            effect: "업무 -15, 인맥 -20, 체력 +10",
+                            result: { work: -15, network: -20, health: 10 }
                         }
                     ]
                 },
                 {
-                    title: "팀 리더십 시험",
-                    description: "팀원 간 갈등이 발생했습니다. 한 팀원이 다른 팀원의 업무 방식에 불만을 토로합니다. 팀 분위기가 악화되고 있습니다.",
+                    title: "팀 리더십의 시험",
+                    description: "프로젝트 막바지. 팀원 A와 B가 심각하게 대립하고 있습니다.\n\nA: \"B 선배 방식은 구식이에요. 제 방법이 더 효율적입니다!\"\nB: \"경험도 없는 게 설치긴. 과장님, 이 친구 좀 어떻게 해주세요.\"\n\n팀 분위기가 최악입니다. 프로젝트 진행이 멈췄습니다.",
                     choices: [
                         {
-                            text: "양측 이야기를 듣고 중재안을 제시합니다.",
-                            effect: "업무 +5, 인맥 +25, 체력 -15",
-                            result: { work: 5, network: 25, health: -15 }
+                            text: "양측 의견을 듣고 객관적 데이터로 판단합니다. 감정이 아닌 팩트로 중재합니다.",
+                            effect: "업무 +15, 인맥 +25, 체력 -20",
+                            result: { work: 15, network: 25, health: -20 }
                         },
                         {
-                            text: "명확한 규칙을 정하고 따르게 합니다.",
-                            effect: "업무 +15, 인맥 +5, 체력 -10",
-                            result: { work: 15, network: 5, health: -10 }
+                            text: "명확한 규칙을 정합니다. 이견이 있으면 최종 결정은 제가 합니다.",
+                            effect: "업무 +20, 인맥 +10, 체력 -15",
+                            result: { work: 20, network: 10, health: -15 }
                         },
                         {
-                            text: "팀장님께 보고하고 도움을 청합니다.",
-                            effect: "업무 0, 인맥 -10, 체력 0",
-                            result: { work: 0, network: -10, health: 0 }
+                            text: "부장님께 보고하고 조직적 해결을 요청합니다.",
+                            effect: "업무 -5, 인맥 -15, 체력 0",
+                            result: { work: -5, network: -15, health: 0 }
                         }
                     ]
                 },
                 {
-                    title: "HBM2 완성의 순간",
-                    description: "드디어 HBM2 개발이 완료되었습니다! 엔비디아에서 긍정적인 반응을 보이고 있습니다. 회사 주가가 상승합니다.",
+                    title: "HBM3E 양산 성공 - 역전의 시작",
+                    description: "2026년 12월. 드디어 HBM3E 양산에 성공했습니다! 수율 85% 달성!\n\n뉴스: \"삼성전자, HBM3E 양산 성공... 엔비디아 재공급 가능성 ↑\"\n\n엔비디아에서 긍정적인 반응을 보이고 있습니다. 회사 주가가 급등합니다. 하이닉스 다니던 그 친구에게 문자가 왔습니다.\n\n친구: \"야... 축하한다. 내가 잘못 봤나봐.\"",
                     choices: [
                         {
-                            text: "바로 HBM3 개발 계획을 수립합니다.",
-                            effect: "업무 +25, 인맥 +10, 체력 -15",
-                            result: { work: 25, network: 10, health: -15, marketCap: 50 }
+                            text: "바로 HBM4 개발 계획을 수립합니다. 이제 시작입니다!",
+                            effect: "업무 +30, 인맥 +15, 체력 -20",
+                            result: { work: 30, network: 15, health: -20, hbm: 2, marketCap: 70 }
                         },
                         {
-                            text: "팀원들과 성과를 축하하고 다음 준비를 합니다.",
-                            effect: "업무 +15, 인맥 +20, 체력 +5",
-                            result: { work: 15, network: 20, health: 5, marketCap: 50 }
+                            text: "팀원들과 성과를 축하하고 재충전의 시간을 가집니다. 지속가능한 성장이 중요합니다.",
+                            effect: "업무 +20, 인맥 +25, 체력 +10",
+                            result: { work: 20, network: 25, health: 10, hbm: 2, marketCap: 70 }
                         }
                     ]
                 }
             ],
             3: [ // 차장
                 {
-                    title: "차장 승진, 전략적 역할",
-                    description: "차장으로 승진했습니다. 이제 HBM3 프로젝트의 핵심 리더입니다. 엔비디아가 HBM3에 큰 기대를 걸고 있습니다.",
+                    title: "차장 승진 - 전략적 리더",
+                    description: "2027년 7월. 차장으로 승진했습니다!\n\n이제 HBM4 프로젝트의 전체 로드맵을 책임집니다. 엔비디아가 HBM4에 큰 기대를 걸고 있습니다.\n\nCEO: \"자네가 HBM 사업의 미래야. 이번엔 하이닉스를 따라가는 게 아니라 우리가 시장을 리드해야 해.\"",
                     choices: [
                         {
-                            text: "공격적인 일정으로 빠른 개발을 추진합니다.",
-                            effect: "업무 +30, 인맥 0, 체력 -25",
-                            result: { work: 30, network: 0, health: -25, hbm: 2, marketCap: 50 }
+                            text: "공격적인 일정으로 2028년 상반기 양산을 목표로 합니다. 속도가 생명입니다!",
+                            effect: "업무 +35, 인맥 +10, 체력 -30",
+                            result: { work: 35, network: 10, health: -30, hbm: 3, marketCap: 60 }
                         },
                         {
-                            text: "안정적인 개발 프로세스를 구축합니다.",
+                            text: "안정적인 2028년 하반기 양산을 목표로 품질에 집중합니다.",
+                            effect: "업무 +25, 인맥 +20, 체력 -15",
+                            result: { work: 25, network: 20, health: -15, hbm: 3, marketCap: 60 }
+                        }
+                    ]
+                },
+                {
+                    title: "경쟁사의 반격",
+                    description: "2027년 10월. SK하이닉스가 'HBM4 Early Access' 프로그램을 발표했습니다.\n\n뉴스: \"SK하이닉스, HBM4 선행 샘플 엔비디아 공급 시작... 삼성 긴장\"\n\n임원 긴급회의가 소집되었습니다. 분위기가 험악합니다.\n\nCFO: \"투자를 더 늘려야 하는 거 아닙니까? 또 늦으면 끝입니다!\"\nCTO: \"차장님 생각은 어떻습니까?\"",
+                    choices: [
+                        {
+                            text: "일정을 6개월 앞당기겠습니다. 개발인력과 예산을 두 배로 요청합니다!",
+                            effect: "업무 +30, 인맥 +25, 체력 -35",
+                            result: { work: 30, network: 25, health: -35, marketCap: 50 }
+                        },
+                        {
+                            text: "속도보다 품질로 차별화하겠습니다. 우리는 더 안정적인 HBM4를 만들겠습니다.",
+                            effect: "업무 +25, 인맥 +15, 체력 -20",
+                            result: { work: 25, network: 15, health: -20, marketCap: 40 }
+                        },
+                        {
+                            text: "현재 계획을 유지하겠습니다. 우리는 우리 로드맵을 믿어야 합니다.",
+                            effect: "업무 +10, 인맥 -15, 체력 -10",
+                            result: { work: 10, network: -15, health: -10, marketCap: 20 }
+                        }
+                    ]
+                },
+                {
+                    title: "20조원 투자 결정",
+                    description: "2028년 1월. HBM4 양산을 위해 평택 라인에 20조원 투자가 필요합니다.\n\nCFO: \"20조는 너무 큽니다. 만약 실패하면 회사가 흔들립니다.\"\nCEO: \"하지만 투자하지 않으면 경쟁에서 뒤처집니다.\"\n\n이사회에서 당신의 의견을 묻습니다. 당신의 한 마디가 회사의 운명을 결정할 수 있습니다.",
+                    choices: [
+                        {
+                            text: "CEO 의견을 지지합니다. 20조 전액 투자가 필요합니다. 지금이 기회입니다!",
+                            effect: "업무 +25, 인맥 +30, 체력 -20",
+                            result: { work: 25, network: 30, health: -20, marketCap: 100 }
+                        },
+                        {
+                            text: "단계적 투자를 제안합니다. 1단계 10조로 시작해 성과를 보고 추가 투자합니다.",
                             effect: "업무 +20, 인맥 +15, 체력 -10",
-                            result: { work: 20, network: 15, health: -10, hbm: 2, marketCap: 50 }
+                            result: { work: 20, network: 15, health: -10, marketCap: 60 }
                         }
                     ]
                 },
                 {
-                    title: "경쟁사의 추격",
-                    description: "경쟁사 SK하이닉스가 유사한 제품을 발표했습니다. 시장 선점이 중요한 시점입니다. 임원진이 긴급 회의를 소집했습니다.",
+                    title: "우연한 재회 - 첫사랑과의 만남",
+                    description: "2028년 3월. 강남역 스타벅스.\n\n야근을 마치고 커피를 사려다 그녀를 봤습니다. 대학 시절 짝사랑했던 서연이...\n\n서연: \"어? 당신이... 오랜만이네요! 어떻게 지내요?\"\n\n여전히 아름답습니다. 그녀는 지금 외국계 컨설팅 회사에서 일한다고 합니다. 자유롭게, 여유롭게 살고 있다고...\n\n몇 시간이 순식간에 지나갔습니다. 그녀가 조용히 말합니다.\n\n서연: \"당신... 많이 지쳐 보여요. 매일 밤 11시까지 일하고, 주말도 없이... 이게 당신이 원하던 삶이에요? 나는... 여전히 당신을 좋아해요. 이제 이런 어려운 거 그만하고 나랑 행복하게 살지 않을래요?\"\n\n그녀의 눈이 진지합니다. 손을 내밉니다.\n\n지난 5년간 당신은 모든 것을 HBM에 바쳤습니다. 건강도, 사생활도, 사랑도...\n\n이제 선택해야 합니다.",
                     choices: [
                         {
-                            text: "일정을 3개월 앞당길 방안을 제시합니다.",
-                            effect: "업무 +25, 인맥 +20, 체력 -30",
-                            result: { work: 25, network: 20, health: -30, marketCap: 30 }
+                            text: "...미안해요. 난 이 일을 끝까지 해야 해요. HBM4를 완성해야 합니다. 당신을 만날 자격이 없어요.",
+                            effect: "업무 +40, 인맥 -10, 체력 -30",
+                            result: { work: 40, network: -10, health: -30, marketCap: 0 }
                         },
                         {
-                            text: "품질을 앞세운 차별화 전략을 제안합니다.",
-                            effect: "업무 +20, 인맥 +10, 체력 -15",
-                            result: { work: 20, network: 10, health: -15, marketCap: 30 }
+                            text: "당신 말이 맞아요... 나도 지쳤어요. 함께 새로운 시작을 해볼까요?",
+                            effect: "업무 -30, 인맥 +20, 체력 +40",
+                            result: { work: -30, network: 20, health: 40, marketCap: 0 }
                         },
                         {
-                            text: "현재 계획을 유지하며 품질에 집중합니다.",
-                            effect: "업무 +10, 인맥 -10, 체력 -5",
-                            result: { work: 10, network: -10, health: -5, marketCap: 10 }
+                            text: "조금만... 조금만 기다려줘요. HBM4만 완성하면, 그때 다시 만나요. 약속할게요.",
+                            effect: "업무 +30, 인맥 +10, 체력 -25",
+                            result: { work: 30, network: 10, health: -25, marketCap: 0 }
                         }
                     ]
                 },
                 {
-                    title: "대규모 투자 결정",
-                    description: "HBM3 양산을 위해 대규모 설비 투자가 필요합니다. CFO는 신중론을, CEO는 공격적 투자를 주장합니다. 당신의 의견을 묻습니다.",
+                    title: "HBM4 샘플 테스트 성공",
+                    description: "2028년 6월. HBM4 엔지니어링 샘플이 엔비디아 테스트를 통과했습니다!\n\n엔비디아 엔지니어: \"Impressive. 하이닉스보다 전력 효율이 12% 좋네요.\"\n\n회사 주가가 급등합니다. 부장 승진이 확정되었습니다.\n\n그때 하이닉스 다니던 친구에게 전화가 옵니다.\n\n친구: \"야... 우리 회사 분위기 심상치 않아. 혹시 너희 회사 채용 있어?\"",
                     choices: [
                         {
-                            text: "CEO 의견을 지지합니다. 지금이 기회입니다!",
-                            effect: "업무 +15, 인맥 +25, 체력 -10",
-                            result: { work: 15, network: 25, health: -10, marketCap: 80 }
+                            text: "바로 양산 준비 TF를 구성합니다. 2028년 말 양산이 목표입니다!",
+                            effect: "업무 +35, 인맥 +25, 체력 -25",
+                            result: { work: 35, network: 25, health: -25, marketCap: 120 }
                         },
                         {
-                            text: "단계적 투자를 제안합니다. 리스크 관리가 필요합니다.",
-                            effect: "업무 +20, 인맥 +10, 체력 -5",
-                            result: { work: 20, network: 10, health: -5, marketCap: 50 }
-                        }
-                    ]
-                },
-                {
-                    title: "HBM3 양산 성공",
-                    description: "HBM3 양산에 성공했습니다! 엔비디아가 대량 주문을 확정했고, 회사 주가가 급등합니다. 당신은 부장 승진 대상자가 되었습니다.",
-                    choices: [
-                        {
-                            text: "바로 HBM3E 개발 TF를 구성합니다.",
-                            effect: "업무 +30, 인맥 +20, 체력 -15",
-                            result: { work: 30, network: 20, health: -15, hbm: 3, marketCap: 100 }
-                        },
-                        {
-                            text: "팀 재정비와 함께 차세대 계획을 세웁니다.",
-                            effect: "업무 +20, 인맥 +25, 체력 0",
-                            result: { work: 20, network: 25, health: 0, hbm: 3, marketCap: 100 }
+                            text: "팀 재정비와 함께 안정적인 양산 계획을 세웁니다. 2029년 상반기가 현실적입니다.",
+                            effect: "업무 +25, 인맥 +30, 체력 -10",
+                            result: { work: 25, network: 30, health: -10, marketCap: 120 }
                         }
                     ]
                 }
             ],
             4: [ // 부장
                 {
-                    title: "부장 승진, 부서 책임자",
-                    description: "드디어 부장이 되었습니다. 이제 HBM사업부 전체를 책임집니다. HBM3E를 넘어 HBM4 개발 계획을 수립해야 합니다.",
+                    title: "부장 승진 - 사업부 책임자",
+                    description: "2028년 12월. 부장으로 승진했습니다!\n\n이제 HBM사업부 전체를 책임집니다. 팀원만 200명이 넘습니다.\n\nCEO: \"부장님, 삼성의 반도체 미래가 HBM에 달렸습니다. 부탁합니다.\"\n\n하지만 프레셔가 엄청납니다. 수조원의 예산, 수백명의 인력, 회사의 운명...",
                     choices: [
                         {
-                            text: "HBM4 개발에 모든 역량을 집중합니다.",
-                            effect: "업무 +35, 인맥 +10, 체력 -30",
-                            result: { work: 35, network: 10, health: -30, marketCap: 50 }
+                            text: "HBM4 양산과 HBM5 연구를 동시에 추진합니다. 계속 앞서가야 합니다!",
+                            effect: "업무 +40, 인맥 +15, 체력 -35",
+                            result: { work: 40, network: 15, health: -35, marketCap: 80 }
                         },
                         {
-                            text: "HBM3E 안정화와 HBM4 준비를 병행합니다.",
-                            effect: "업무 +25, 인맥 +20, 체력 -20",
-                            result: { work: 25, network: 20, health: -20, marketCap: 50 }
+                            text: "HBM4 안정화에 집중하고 HBM5는 2년 후 시작합니다. 단계적으로 가겠습니다.",
+                            effect: "업무 +30, 인맥 +25, 체력 -20",
+                            result: { work: 30, network: 25, health: -20, marketCap: 80 }
                         }
                     ]
                 },
                 {
-                    title: "글로벌 경쟁",
-                    description: "마이크론이 차세대 HBM 기술을 발표했습니다. 시장에서 삼성의 기술력에 대한 의구심이 제기됩니다. 언론이 주목하고 있습니다.",
+                    title: "정리해고의 딜레마",
+                    description: "2029년 3월. 글로벌 경기 침체로 회사 사정이 어려워졌습니다.\n\nCHRO: \"부장님 부서에서 30% 인력 감축이 필요합니다. 명단을 올려주세요.\"\n\n그때 고등학교 시절 기억이 떠올랐습니다. 친구 아버지가 IMF 때 삼성전자에서 정리해고 당하셨던 일... 친구 가족이 무너지는 걸 봤었습니다.\n\n이제 당신이 그런 결정을 내려야 합니다. 당신 팀원들의 얼굴이 스쳐갑니다.",
                     choices: [
                         {
-                            text: "기술 발표회를 열어 우리의 우위를 입증합니다.",
-                            effect: "업무 +30, 인맥 +25, 체력 -25",
-                            result: { work: 30, network: 25, health: -25, marketCap: 100 }
+                            text: "임원진에게 강력히 항의합니다. HBM이 회사 미래인데 인력 감축은 말이 안 됩니다!",
+                            effect: "업무 +20, 인맥 +30, 체력 -30",
+                            result: { work: 20, network: 30, health: -30, marketCap: 0 }
                         },
                         {
-                            text: "조용히 개발에 집중하고 결과로 보여줍니다.",
-                            effect: "업무 +25, 인맥 0, 체력 -15",
-                            result: { work: 25, network: 0, health: -15, marketCap: 30 }
+                            text: "최소한의 인원만 조정하고, 나머지는 제 연봉 삭감으로 충당하겠습니다.",
+                            effect: "업무 +25, 인맥 +35, 체력 -25",
+                            result: { work: 25, network: 35, health: -25, marketCap: 0 }
                         },
                         {
-                            text: "엔비디아와의 긴밀한 협력을 강조합니다.",
-                            effect: "업무 +15, 인맥 +30, 체력 -10",
-                            result: { work: 15, network: 30, health: -10, marketCap: 80 }
+                            text: "회사 방침을 따르되, 재취업 지원 프로그램을 최대한 활용하겠습니다.",
+                            effect: "업무 +15, 인맥 +20, 체력 -20",
+                            result: { work: 15, network: 20, health: -20, marketCap: 0 }
                         }
                     ]
                 },
                 {
-                    title: "인재 영입",
-                    description: "세계적인 반도체 석학이 우리 팀 합류를 고려하고 있습니다. 하지만 천문학적인 연봉을 요구합니다. 임원회의에서 당신의 의견이 결정적입니다.",
+                    title: "글로벌 인재 영입 논쟁",
+                    description: "2029년 6월. 세계적인 반도체 석학 Dr. Kim이 삼성 합류를 고려하고 있습니다.\n\n하지만 연봉이 연 50억원입니다. 그의 기술력이 있으면 HBM5를 2년 앞당길 수 있습니다.\n\nCFO: \"50억은 너무 큽니다. 내부 인재로 안 됩니까?\"\n부사장: \"부장님 판단에 맡기겠습니다. 책임지실 수 있습니까?\"",
                     choices: [
                         {
-                            text: "적극 영입을 추진합니다. HBM4 성공의 핵심입니다!",
-                            effect: "업무 +35, 인맥 +20, 체력 -15",
-                            result: { work: 35, network: 20, health: -15, marketCap: 50 }
+                            text: "영입을 강력히 추진합니다. 그의 기술력은 그 이상의 가치가 있습니다!",
+                            effect: "업무 +40, 인맥 +25, 체력 -25",
+                            result: { work: 40, network: 25, health: -25, marketCap: 80 }
                         },
                         {
-                            text: "내부 인재 육성에 집중하자고 제안합니다.",
-                            effect: "업무 +15, 인맥 +10, 체력 0",
-                            result: { work: 15, network: 10, health: 0, marketCap: 20 }
+                            text: "내부 인재 육성에 집중하겠습니다. 우리 팀의 잠재력을 믿습니다.",
+                            effect: "업무 +20, 인맥 +30, 체력 -10",
+                            result: { work: 20, network: 30, health: -10, marketCap: 40 }
                         }
                     ]
                 },
                 {
-                    title: "HBM4 개발 돌입",
-                    description: "모든 준비가 완료되었습니다. HBM4 개발이 본격적으로 시작됩니다. 이 프로젝트의 성공이 회사의 미래를 결정할 것입니다.",
+                    title: "HBM4 양산 돌파 - 임원 승진",
+                    description: "2029년 11월. HBM4 양산이 본격화되었습니다. 수율 90% 달성!\n\n뉴스: \"삼성전자, HBM4 양산 성공... 엔비디아 차세대 GPU에 독점 공급\"\n\n회사 주가가 폭등합니다. CEO가 직접 전화를 겁니다.\n\nCEO: \"부장님, 임원 승진이 확정되었습니다. 축하합니다. 이제 경영진의 일원으로서 회사의 미래를 함께 만들어갑시다.\"",
                     choices: [
                         {
-                            text: "최고의 팀을 구성하고 전폭적으로 지원합니다.",
-                            effect: "업무 +40, 인맥 +30, 체력 -25",
-                            result: { work: 40, network: 30, health: -25, hbm: 4, marketCap: 100 }
+                            text: "HBM5 개발과 차세대 AI 칩 메모리 연구를 동시에 시작하겠습니다!",
+                            effect: "업무 +45, 인맥 +30, 체력 -30",
+                            result: { work: 45, network: 30, health: -30, hbm: 4, marketCap: 150 }
                         },
                         {
-                            text: "단계별 목표를 설정하고 체계적으로 진행합니다.",
-                            effect: "업무 +30, 인맥 +20, 체력 -15",
-                            result: { work: 30, network: 20, health: -15, hbm: 4, marketCap: 100 }
+                            text: "지속 가능한 성장 전략을 수립하고 차세대 리더들을 육성하겠습니다.",
+                            effect: "업무 +35, 인맥 +40, 체력 -20",
+                            result: { work: 35, network: 40, health: -20, hbm: 4, marketCap: 150 }
                         }
                     ]
                 }
             ],
             5: [ // 임원
                 {
-                    title: "임원 승진, 경영진의 일원",
-                    description: "임원으로 승진했습니다! 이제 회사의 핵심 의사결정에 참여합니다. HBM4 프로젝트는 최종 단계에 접어들었습니다.",
+                    title: "임원 승진 - 경영진의 일원",
+                    description: "2030년 1월. 임원으로 승진했습니다!\n\n이제 CTO 직속 부사장으로서 반도체 사업 전략을 총괄합니다.\n\n회장: \"이제 우리가 세계 메모리 시장을 리드해야 합니다. 부사장님께 기대가 큽니다.\"\n\n임원 회의실. 십 수년 전 신입사원으로 입사할 때는 상상도 못 했던 자리...",
                     choices: [
                         {
-                            text: "HBM4 완성에 모든 것을 겁니다.",
-                            effect: "업무 +45, 인맥 +20, 체력 -35",
-                            result: { work: 45, network: 20, health: -35, marketCap: 100 }
+                            text: "HBM 시장 지배력 강화에 집중합니다. 시장 점유율 70% 목표!",
+                            effect: "업무 +45, 인맥 +25, 체력 -35",
+                            result: { work: 45, network: 25, health: -35, marketCap: 120 }
                         },
                         {
-                            text: "차세대 기술 로드맵을 함께 준비합니다.",
+                            text: "HBM과 차세대 기술 포트폴리오를 균형있게 발전시킵니다.",
+                            effect: "업무 +40, 인맥 +35, 체력 -25",
+                            result: { work: 40, network: 35, health: -25, marketCap: 120 }
+                        }
+                    ]
+                },
+                {
+                    title: "기술적 결단 - GAA vs 차세대 패키징",
+                    description: "2030년 5월. 임원 전략회의. 향후 10년을 결정할 기술 투자 방향을 논의합니다.\n\nCTO: \"두 가지 선택지가 있습니다.\n\n옵션 A: GAA(Gate-All-Around) 트랜지스터 기술에 15조 투자. 미세공정 경쟁력 확보.\n옵션 B: 3D 패키징 및 Chiplet 기술에 15조 투자. 시스템 반도체 시장 진출.\n\n부사장님, 업계 최고 전문가로서 의견을 주시죠.\"\n\n이 결정이 삼성 반도체의 향후 10년을 좌우합니다.",
+                    choices: [
+                        {
+                            text: "GAA 기술 투자를 지지합니다. 미세공정이 반도체의 근본입니다. TSMC와의 격차를 줄여야 합니다.",
+                            effect: "업무 +40, 인맥 +20, 체력 -30",
+                            result: { work: 40, network: 20, health: -30, marketCap: 100 }
+                        },
+                        {
+                            text: "3D 패키징에 투자해야 합니다. 무어의 법칙이 한계에 도달했습니다. 미래는 패키징입니다.",
+                            effect: "업무 +45, 인맥 +25, 체력 -30",
+                            result: { work: 45, network: 25, health: -30, marketCap: 120 }
+                        },
+                        {
+                            text: "두 기술 모두 중요합니다. 각각 7.5조씩 분산 투자하고, 시장 반응을 보며 조정합니다.",
                             effect: "업무 +35, 인맥 +30, 체력 -25",
-                            result: { work: 35, network: 30, health: -25, marketCap: 100 }
+                            result: { work: 35, network: 30, health: -25, marketCap: 90 }
                         }
                     ]
                 },
                 {
-                    title: "엔비디아 CEO와의 미팅",
-                    description: "엔비디아 CEO 젠슨 황이 직접 삼성을 방문합니다. HBM4 공급계약에 대한 최종 협상입니다. 계약 규모는 수십조원대입니다.",
+                    title: "엔비디아 CEO 젠슨 황과의 담판",
+                    description: "2030년 9월. 엔비디아 본사, 캘리포니아.\n\nCEO 젠슨 황이 직접 당신을 만나러 왔습니다.\n\nJensen: \"Samsung의 HBM4 품질, 인상적입니다. 5년 장기 공급계약을 체결하고 싶습니다. 하지만 조건이 있습니다. 가격을 20% 낮춰주시고, R&D 정보를 일부 공유해 주셔야 합니다.\"\n\n수십조원 규모의 계약입니다. 하지만 조건이 까다롭습니다.",
                     choices: [
                         {
-                            text: "공격적인 가격과 물량을 제시합니다.",
-                            effect: "업무 +30, 인맥 +35, 체력 -30",
-                            result: { work: 30, network: 35, health: -30, marketCap: 150 }
-                        },
-                        {
-                            text: "프리미엄 전략과 독점 공급을 제안합니다.",
-                            effect: "업무 +40, 인맥 +25, 체력 -25",
-                            result: { work: 40, network: 25, health: -25, marketCap: 120 }
-                        }
-                    ]
-                },
-                {
-                    title: "HBM4 양산 성공",
-                    description: "HBM4 양산에 성공했습니다! 세계 최초로 차세대 AI 칩에 탑재될 HBM4를 대량 생산합니다. 전세계가 주목하고 있습니다.",
-                    choices: [
-                        {
-                            text: "엔비디아와의 전략적 파트너십을 확대합니다.",
-                            effect: "업무 +35, 인맥 +40, 체력 -20",
-                            result: { work: 35, network: 40, health: -20, marketCap: 200 }
-                        },
-                        {
-                            text: "다른 글로벌 고객사도 공략합니다.",
+                            text: "가격은 10% 인하, R&D 공유는 거부합니다. 우리의 기술 주권은 양보할 수 없습니다.",
                             effect: "업무 +40, 인맥 +30, 체력 -30",
-                            result: { work: 40, network: 30, health: -30, marketCap: 180 }
+                            result: { work: 40, network: 30, health: -30, marketCap: 150 }
+                        },
+                        {
+                            text: "조건을 수용합니다. 엔비디아와의 파트너십이 가장 중요합니다. 장기적으로 이익입니다.",
+                            effect: "업무 +30, 인맥 +40, 체력 -25",
+                            result: { work: 30, network: 40, health: -25, marketCap: 180 }
+                        },
+                        {
+                            text: "독점 계약 대신 프리미엄 가격으로 공급하겠습니다. 우리는 다른 고객사도 확보해야 합니다.",
+                            effect: "업무 +45, 인맥 +25, 체력 -30",
+                            result: { work: 45, network: 25, health: -30, marketCap: 130 }
                         }
                     ]
                 },
                 {
-                    title: "시가총액 천조원 달성",
-                    description: "삼성전자 주가가 폭등하여 마침내 시가총액 천조원을 돌파했습니다! 당신의 리더십이 회사를 세계 최고의 반도체 기업으로 만들었습니다.",
+                    title: "시가총액 천조원 돌파 - 전설의 완성",
+                    description: "2031년 3월 15일.\n\n뉴스 속보: \"삼성전자, 시가총액 천조원 돌파! 세계 2위 기업 등극!\"\n\n당신의 사무실 창문으로 서울 야경이 펼쳐집니다.\n\n10년 전, 그 면접장에서 '실패한 조직'이라고 불렸던 삼성전자.\n신입사원으로 입사해 HBM 프로젝트를 이끌고...\n밤샘 야근, 기술적 위기, 조롱, 압박...\n\n그 모든 것을 이겨내고 마침내 이 순간에 도달했습니다.\n\n회장님이 직접 전화를 겁니다.\n\n회장: \"부사장님 덕분입니다. 정말 고생 많으셨습니다.\"",
                     choices: [
                         {
-                            text: "다음 목표를 향해 나아갑니다!",
+                            text: "아닙니다. 우리 모두의 노력이었습니다. 이제 세계 1위를 향해 나아갑시다!",
                             effect: "업무 +50, 인맥 +50, 체력 +50",
                             result: { work: 50, network: 50, health: 50, marketCap: 0 }
                         }
@@ -933,6 +1314,8 @@
         };
 
         function startGame() {
+            initAudio();
+            playSound('select');
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameScreen').classList.remove('hidden');
             updateUI();
@@ -940,7 +1323,6 @@
         }
 
         function updateUI() {
-            // 스탯 업데이트
             document.getElementById('workStat').textContent = Math.max(0, gameState.work);
             document.getElementById('networkStat').textContent = Math.max(0, gameState.network);
             document.getElementById('healthStat').textContent = Math.max(0, gameState.health);
@@ -949,13 +1331,12 @@
             document.getElementById('networkBar').style.width = Math.max(0, Math.min(100, gameState.network)) + '%';
             document.getElementById('healthBar').style.width = Math.max(0, Math.min(100, gameState.health)) + '%';
 
-            // 정보 업데이트
-            document.getElementById('currentRank').textContent = ranks[gameState.rank];
+            document.getElementById('currentRank').textContent = ranks[gameState.rank + 1];
             document.getElementById('hbmProgress').textContent = hbmStages[gameState.hbmLevel];
             document.getElementById('marketCap').textContent = gameState.marketCap + '조원';
 
             const totalEvents = events[gameState.rank].length;
-            document.getElementById('eventProgress').textContent = `${gameState.eventsCompletedInRank + 1}/${totalEvents}`;
+            document.getElementById('eventProgress').textContent = `${gameState.eventsCompletedInRank}/${totalEvents}`;
         }
 
         function showEvent() {
@@ -975,13 +1356,15 @@
                     ${choice.text}
                     <span class="choice-effect">${choice.effect}</span>
                 `;
-                button.onclick = () => makeChoice(choice.result);
+                button.onclick = () => {
+                    playSound('select');
+                    makeChoice(choice.result);
+                };
                 choicesContainer.appendChild(button);
             });
         }
 
         function makeChoice(result) {
-            // 스탯 변경
             gameState.work += result.work || 0;
             gameState.network += result.network || 0;
             gameState.health += result.health || 0;
@@ -994,33 +1377,33 @@
                 gameState.marketCap += result.marketCap;
             }
 
-            // 게임오버 체크
             if (gameState.work <= 0) {
+                playSound('fail');
                 gameOver("업무능력이 바닥났습니다. 업무 성과 부진으로 인사평가에서 최하위를 받았습니다.");
                 return;
             }
             if (gameState.network <= 0) {
+                playSound('fail');
                 gameOver("인맥이 바닥났습니다. 회사 내에서 고립되어 더 이상 일할 수 없게 되었습니다.");
                 return;
             }
             if (gameState.health <= 0) {
+                playSound('fail');
                 gameOver("체력이 바닥났습니다. 과로로 쓰러져 병가를 내야 했습니다.");
                 return;
             }
 
             gameState.eventsCompletedInRank++;
 
-            // 직급의 모든 이벤트를 완료했는지 체크
             if (gameState.eventsCompletedInRank >= events[gameState.rank].length) {
                 if (gameState.rank < 5) {
-                    // 승진
+                    playSound('success');
                     promote();
                 } else {
-                    // 게임 클리어
+                    playSound('success');
                     gameWin();
                 }
             } else {
-                // 다음 이벤트
                 gameState.currentEventIndex++;
                 updateUI();
                 showEvent();
@@ -1032,13 +1415,12 @@
             gameState.currentEventIndex = 0;
             gameState.eventsCompletedInRank = 0;
 
-            // 승진 애니메이션
             const animation = document.createElement('div');
             animation.className = 'promotion-animation';
             animation.innerHTML = `
                 <div class="promotion-content">
                     <div class="promotion-text">🎉 승진을 축하합니다! 🎉</div>
-                    <div class="promotion-rank">${ranks[gameState.rank]}</div>
+                    <div class="promotion-rank">${ranks[gameState.rank + 1]}</div>
                 </div>
             `;
             document.body.appendChild(animation);
@@ -1054,14 +1436,14 @@
             const eventPanel = document.querySelector('.event-panel');
             eventPanel.innerHTML = `
                 <div class="game-over-panel">
-                    <div class="game-over-title">💔 게임 오버</div>
+                    <div class="game-over-title">💔 GAME OVER</div>
                     <div class="game-over-reason">${reason}</div>
                     <div class="game-over-reason">
-                        최종 직급: <strong>${ranks[gameState.rank]}</strong><br>
+                        최종 직급: <strong>${ranks[gameState.rank + 1]}</strong><br>
                         시가총액: <strong>${gameState.marketCap}조원</strong><br>
                         HBM 진행도: <strong>${hbmStages[gameState.hbmLevel]}</strong>
                     </div>
-                    <button class="restart-button" onclick="location.reload()">다시 도전하기</button>
+                    <button class="restart-button" onclick="location.reload()">Retry</button>
                 </div>
             `;
         }
@@ -1070,18 +1452,18 @@
             const eventPanel = document.querySelector('.event-panel');
             eventPanel.innerHTML = `
                 <div class="ending-panel">
-                    <div class="ending-title">🏆 축하합니다! 게임 클리어! 🏆</div>
+                    <div class="ending-title">🏆 PERFECT CLEAR! 🏆</div>
                     <div class="ending-description">
-                        당신은 평범한 신입사원에서 시작하여<br>
+                        당신은 평범한 면접자에서 시작하여<br>
                         삼성전자의 임원이 되었습니다!<br><br>
-                        <strong>HBM4 개발 성공</strong><br>
-                        <strong>엔비디아 독점 공급 계약 체결</strong><br>
-                        <strong>시가총액 ${gameState.marketCap}조원 달성</strong><br><br>
+                        <strong>✅ HBM4 개발 성공</strong><br>
+                        <strong>✅ 엔비디아 장기 공급 계약 체결</strong><br>
+                        <strong>✅ 시가총액 ${gameState.marketCap}조원 달성</strong><br><br>
                         당신의 리더십으로 삼성전자는<br>
                         세계 최고의 반도체 기업이 되었습니다!<br><br>
                         <em>"신입사원 하나를 키우는 데는<br>정말로 온 마을이 필요했습니다."</em>
                     </div>
-                    <button class="restart-button" onclick="location.reload()">다시 플레이</button>
+                    <button class="restart-button" onclick="location.reload()">Play Again</button>
                 </div>
             `;
         }
