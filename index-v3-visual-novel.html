@@ -538,6 +538,11 @@
             to { opacity: 1; }
         }
 
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
         @media (max-width: 768px) {
             .character-avatar {
                 width: 150px;
@@ -674,29 +679,59 @@
             osc.stop(startTime + duration);
         }
 
-        function playBackgroundMusic() {
-            if (!audioContext || musicPlaying) return;
-            musicPlaying = true;
-            const now = audioContext.currentTime;
+        let musicLoopInterval;
 
+        function playBackgroundMusic() {
+            if (!audioContext) return;
+
+            // 포켓몬 스타일 배경음악 멜로디 (더 길고 반복적인 패턴)
+            const now = audioContext.currentTime;
             const melody = [
-                { freq: 523.25, time: 0.0, dur: 0.2 },
-                { freq: 587.33, time: 0.2, dur: 0.2 },
-                { freq: 659.25, time: 0.4, dur: 0.2 },
-                { freq: 698.46, time: 0.6, dur: 0.2 },
-                { freq: 783.99, time: 0.8, dur: 0.4 },
+                // 메인 테마 (4마디)
+                { freq: 523.25, time: 0.0, dur: 0.3 },   // C
+                { freq: 659.25, time: 0.3, dur: 0.3 },   // E
+                { freq: 783.99, time: 0.6, dur: 0.3 },   // G
+                { freq: 659.25, time: 0.9, dur: 0.3 },   // E
+                { freq: 523.25, time: 1.2, dur: 0.6 },   // C (길게)
+
+                { freq: 587.33, time: 2.0, dur: 0.3 },   // D
+                { freq: 698.46, time: 2.3, dur: 0.3 },   // F
+                { freq: 830.61, time: 2.6, dur: 0.3 },   // G#
+                { freq: 698.46, time: 2.9, dur: 0.3 },   // F
+                { freq: 587.33, time: 3.2, dur: 0.6 },   // D (길게)
+
+                // 반복 패턴
+                { freq: 659.25, time: 4.0, dur: 0.3 },   // E
+                { freq: 783.99, time: 4.3, dur: 0.3 },   // G
+                { freq: 880.00, time: 4.6, dur: 0.3 },   // A
+                { freq: 783.99, time: 4.9, dur: 0.3 },   // G
+                { freq: 659.25, time: 5.2, dur: 0.6 },   // E (길게)
+
+                { freq: 698.46, time: 6.0, dur: 0.3 },   // F
+                { freq: 587.33, time: 6.3, dur: 0.3 },   // D
+                { freq: 523.25, time: 6.6, dur: 0.9 },   // C (매우 길게)
             ];
 
             melody.forEach(note => {
                 playNote(note.freq, now + note.time, note.dur);
             });
+        }
 
-            setTimeout(() => {
-                musicPlaying = false;
-                if (document.getElementById('musicToggle').textContent.includes('ON')) {
-                    playBackgroundMusic();
-                }
-            }, 2000);
+        function startMusicLoop() {
+            if (musicLoopInterval) return; // 이미 실행 중이면 무시
+
+            // 7.5초마다 반복 (멜로디 길이에 맞춤)
+            playBackgroundMusic();
+            musicLoopInterval = setInterval(() => {
+                playBackgroundMusic();
+            }, 7500);
+        }
+
+        function stopMusicLoop() {
+            if (musicLoopInterval) {
+                clearInterval(musicLoopInterval);
+                musicLoopInterval = null;
+            }
         }
 
         function toggleMusic() {
@@ -1288,6 +1323,7 @@
         function startGame() {
             initAudio();
             playSound('select');
+            startMusicLoop(); // 배경음악 루프 시작
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameScreen').classList.remove('hidden');
             updateUI();
@@ -1339,57 +1375,109 @@
             event.choices.forEach((choice) => {
                 const button = document.createElement('button');
                 button.className = 'choice-button';
-                button.innerHTML = `
-                    ${choice.text}
-                    <span class="choice-effect">${choice.effect}</span>
-                `;
+                button.innerHTML = choice.text; // 선택 전엔 효과를 숨김
                 button.onclick = () => {
                     playSound('select');
-                    makeChoice(choice.result);
+                    makeChoice(choice.result, choice.effect);
                 };
                 choicesContainer.appendChild(button);
             });
         }
 
-        function makeChoice(result) {
-            gameState.work += result.work || 0;
-            gameState.network += result.network || 0;
-            gameState.health += result.health || 0;
+        function showStatChangeNotification(effectText) {
+            const notification = document.createElement('div');
+            notification.className = 'stat-notification';
+            notification.innerHTML = `
+                <div class="stat-notification-content">
+                    <div class="stat-notification-title">결과</div>
+                    <div class="stat-notification-effect">${effectText}</div>
+                </div>
+            `;
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.95);
+                color: white;
+                padding: 30px 40px;
+                border-radius: 15px;
+                border: 3px solid #0066cc;
+                box-shadow: 0 10px 40px rgba(0, 102, 204, 0.5);
+                z-index: 10000;
+                animation: fadeIn 0.3s;
+                text-align: center;
+                font-family: inherit;
+            `;
 
-            if (result.hbm !== undefined) gameState.hbmLevel = result.hbm;
-            if (result.marketCap !== undefined) gameState.marketCap += result.marketCap;
+            const titleStyle = notification.querySelector('.stat-notification-title');
+            titleStyle.style.cssText = `
+                font-size: 24px;
+                font-weight: bold;
+                margin-bottom: 15px;
+                color: #00d4ff;
+            `;
 
-            if (gameState.work <= 0) {
-                playSound('fail');
-                gameOver("업무능력이 바닥났습니다.");
-                return;
-            }
-            if (gameState.network <= 0) {
-                playSound('fail');
-                gameOver("인맥이 바닥났습니다.");
-                return;
-            }
-            if (gameState.health <= 0) {
-                playSound('fail');
-                gameOver("체력이 바닥났습니다.");
-                return;
-            }
+            const effectStyle = notification.querySelector('.stat-notification-effect');
+            effectStyle.style.cssText = `
+                font-size: 20px;
+                line-height: 1.6;
+                color: #fff;
+            `;
 
-            gameState.eventsCompletedInRank++;
-            gameState.currentEventIndex++;
+            document.body.appendChild(notification);
 
-            if (gameState.eventsCompletedInRank >= events[gameState.rank].length) {
-                if (gameState.rank < 5) {
-                    playSound('success');
-                    promote();
-                } else {
-                    playSound('success');
-                    gameWin();
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.3s';
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+        }
+
+        function makeChoice(result, effectText) {
+            // 스탯 변화 표시
+            showStatChangeNotification(effectText);
+
+            // 스탯 업데이트는 알림이 사라진 후
+            setTimeout(() => {
+                gameState.work += result.work || 0;
+                gameState.network += result.network || 0;
+                gameState.health += result.health || 0;
+
+                if (result.hbm !== undefined) gameState.hbmLevel = result.hbm;
+                if (result.marketCap !== undefined) gameState.marketCap += result.marketCap;
+
+                if (gameState.work <= 0) {
+                    playSound('fail');
+                    gameOver("업무능력이 바닥났습니다.");
+                    return;
                 }
-            } else {
-                updateUI();
-                showEvent();
-            }
+                if (gameState.network <= 0) {
+                    playSound('fail');
+                    gameOver("인맥이 바닥났습니다.");
+                    return;
+                }
+                if (gameState.health <= 0) {
+                    playSound('fail');
+                    gameOver("체력이 바닥났습니다.");
+                    return;
+                }
+
+                gameState.eventsCompletedInRank++;
+                gameState.currentEventIndex++;
+
+                if (gameState.eventsCompletedInRank >= events[gameState.rank].length) {
+                    if (gameState.rank < 5) {
+                        playSound('success');
+                        promote();
+                    } else {
+                        playSound('success');
+                        gameWin();
+                    }
+                } else {
+                    updateUI();
+                    showEvent();
+                }
+            }, 2200); // 알림이 표시된 후
         }
 
         function promote() {
