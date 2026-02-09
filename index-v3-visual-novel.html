@@ -693,14 +693,12 @@
         }
 
         let musicLoopInterval;
+        let currentMusicType = 'normal'; // 현재 재생 중인 음악 타입
 
-        function playBackgroundMusic() {
-            if (!audioContext) return;
-
-            // 포켓몬 스타일 배경음악 멜로디 (더 길고 반복적인 패턴)
-            const now = audioContext.currentTime;
-            const melody = [
-                // 메인 테마 (4마디)
+        // 음악 타입별 멜로디 정의
+        const musicMelodies = {
+            normal: [
+                // 평상시 음악 - 밝고 경쾌한 멜로디
                 { freq: 523.25, time: 0.0, dur: 0.3 },   // C
                 { freq: 659.25, time: 0.3, dur: 0.3 },   // E
                 { freq: 783.99, time: 0.6, dur: 0.3 },   // G
@@ -713,7 +711,6 @@
                 { freq: 698.46, time: 2.9, dur: 0.3 },   // F
                 { freq: 587.33, time: 3.2, dur: 0.6 },   // D (길게)
 
-                // 반복 패턴
                 { freq: 659.25, time: 4.0, dur: 0.3 },   // E
                 { freq: 783.99, time: 4.3, dur: 0.3 },   // G
                 { freq: 880.00, time: 4.6, dur: 0.3 },   // A
@@ -723,21 +720,110 @@
                 { freq: 698.46, time: 6.0, dur: 0.3 },   // F
                 { freq: 587.33, time: 6.3, dur: 0.3 },   // D
                 { freq: 523.25, time: 6.6, dur: 0.9 },   // C (매우 길게)
-            ];
+            ],
+            crisis: [
+                // 위기 음악 - 긴장감 있는 낮은 음과 빠른 템포
+                { freq: 329.63, time: 0.0, dur: 0.2 },   // E (낮은 옥타브)
+                { freq: 293.66, time: 0.2, dur: 0.2 },   // D
+                { freq: 329.63, time: 0.4, dur: 0.2 },   // E
+                { freq: 293.66, time: 0.6, dur: 0.2 },   // D
+                { freq: 329.63, time: 0.8, dur: 0.4 },   // E (조금 길게)
+
+                { freq: 349.23, time: 1.4, dur: 0.2 },   // F
+                { freq: 329.63, time: 1.6, dur: 0.2 },   // E
+                { freq: 349.23, time: 1.8, dur: 0.2 },   // F
+                { freq: 329.63, time: 2.0, dur: 0.2 },   // E
+                { freq: 349.23, time: 2.2, dur: 0.4 },   // F (조금 길게)
+
+                { freq: 392.00, time: 2.8, dur: 0.2 },   // G
+                { freq: 349.23, time: 3.0, dur: 0.2 },   // F
+                { freq: 329.63, time: 3.2, dur: 0.2 },   // E
+                { freq: 293.66, time: 3.4, dur: 0.2 },   // D
+                { freq: 261.63, time: 3.6, dur: 0.6 },   // C (긴장감 있게 끝)
+
+                { freq: 293.66, time: 4.4, dur: 0.2 },   // D
+                { freq: 329.63, time: 4.6, dur: 0.2 },   // E
+                { freq: 293.66, time: 4.8, dur: 0.2 },   // D
+                { freq: 261.63, time: 5.0, dur: 0.6 },   // C (반복)
+            ],
+            promotion: [
+                // 승진 팬파레 - 밝고 축하하는 느낌
+                { freq: 523.25, time: 0.0, dur: 0.2 },   // C
+                { freq: 659.25, time: 0.2, dur: 0.2 },   // E
+                { freq: 783.99, time: 0.4, dur: 0.2 },   // G
+                { freq: 1046.50, time: 0.6, dur: 0.4 },  // C (높은 옥타브)
+
+                { freq: 783.99, time: 1.2, dur: 0.2 },   // G
+                { freq: 1046.50, time: 1.4, dur: 0.6 },  // C (높은 옥타브, 길게)
+
+                { freq: 1174.66, time: 2.2, dur: 0.2 },  // D (높은 옥타브)
+                { freq: 1046.50, time: 2.4, dur: 0.2 },  // C
+                { freq: 1174.66, time: 2.6, dur: 0.2 },  // D
+                { freq: 1318.51, time: 2.8, dur: 0.8 },  // E (높은 옥타브, 매우 길게)
+
+                { freq: 1046.50, time: 3.8, dur: 0.4 },  // C
+                { freq: 783.99, time: 4.2, dur: 0.4 },   // G
+                { freq: 523.25, time: 4.6, dur: 0.8 },   // C (원래 옥타브로)
+            ]
+        };
+
+        function playBackgroundMusic(type = 'normal') {
+            if (!audioContext) return;
+
+            const now = audioContext.currentTime;
+            const melody = musicMelodies[type] || musicMelodies.normal;
 
             melody.forEach(note => {
                 playNote(note.freq, now + note.time, note.dur);
             });
         }
 
+        function getMusicType() {
+            // 게임 상태에 따라 적절한 음악 타입 결정
+            if (gameState.health <= 30 && gameState.health > 0) {
+                return 'crisis';
+            }
+            return 'normal';
+        }
+
         function startMusicLoop() {
             if (musicLoopInterval) return; // 이미 실행 중이면 무시
 
-            // 7.5초마다 반복 (멜로디 길이에 맞춤)
-            playBackgroundMusic();
+            const loopMusic = () => {
+                const musicType = getMusicType();
+
+                // 음악 타입이 변경되었을 때만 로그 (디버깅용)
+                if (musicType !== currentMusicType) {
+                    currentMusicType = musicType;
+                }
+
+                playBackgroundMusic(musicType);
+            };
+
+            // 즉시 재생
+            loopMusic();
+
+            // 주기적으로 재생 (음악 타입에 따라 다른 주기)
             musicLoopInterval = setInterval(() => {
-                playBackgroundMusic();
-            }, 7500);
+                loopMusic();
+            }, 7500); // 7.5초마다 반복
+        }
+
+        function playPromotionFanfare() {
+            // 승진 팬파레는 일회성 재생
+            if (!audioContext) return;
+
+            // 기존 루프 정지
+            stopMusicLoop();
+
+            // 팬파레 재생
+            playBackgroundMusic('promotion');
+
+            // 팬파레가 끝난 후 (5초 후) 일반 음악 루프 재시작
+            setTimeout(() => {
+                currentMusicType = 'normal'; // 리셋
+                startMusicLoop();
+            }, 5500);
         }
 
         function stopMusicLoop() {
@@ -1520,6 +1606,9 @@
             // 승진 시 체력 회복! (밸런스 조정)
             const healthRecovery = 30;
             gameState.health = Math.min(100, gameState.health + healthRecovery);
+
+            // 승진 팬파레 재생!
+            playPromotionFanfare();
 
             const animation = document.createElement('div');
             animation.className = 'promotion-animation';
