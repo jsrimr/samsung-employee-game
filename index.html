@@ -485,6 +485,19 @@
             color: #ffd700;
         }
 
+        .promotion-bonus {
+            font-size: 24px;
+            font-weight: bold;
+            color: #28a745;
+            margin-top: 20px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
         .game-over-panel, .ending-panel {
             text-align: center;
             padding: 60px 40px;
@@ -1485,12 +1498,17 @@
             gameState.currentEventIndex = 0;
             gameState.eventsCompletedInRank = 0;
 
+            // 승진 시 체력 회복! (밸런스 조정)
+            const healthRecovery = 30;
+            gameState.health = Math.min(100, gameState.health + healthRecovery);
+
             const animation = document.createElement('div');
             animation.className = 'promotion-animation';
             animation.innerHTML = `
                 <div class="promotion-content">
                     <div class="promotion-text">🎉 승진을 축하합니다! 🎉</div>
                     <div class="promotion-rank">${ranks[gameState.rank + 1]}</div>
+                    <div class="promotion-bonus">❤️ 체력 +${healthRecovery} 회복!</div>
                 </div>
             `;
             document.body.appendChild(animation);
