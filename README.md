@@ -33,7 +33,7 @@
 
 ## 🚀 플레이하기
 
-[여기를 클릭하여 게임 시작하기](https://[YOUR-USERNAME].github.io/samsung-employee-game/)
+[여기를 클릭하여 게임 시작하기](https://jsrimr.github.io/samsung-employee-game/)
 
 또는 `index.html` 파일을 다운로드하여 브라우저에서 직접 실행하세요.
 
