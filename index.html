@@ -1494,6 +1494,25 @@
         }
 
         function promote() {
+            // 승진 심사 기준 (직급별 최소 업무능력 요구사항)
+            const promotionRequirements = {
+                '-1': 40,  // 사원 → 대리
+                '0': 50,   // 대리 → 과장
+                '1': 60,   // 과장 → 차장
+                '2': 70,   // 차장 → 부장
+                '3': 80    // 부장 → 임원
+            };
+
+            const requiredWork = promotionRequirements[gameState.rank];
+
+            // 승진 심사 실패
+            if (requiredWork && gameState.work < requiredWork) {
+                playSound('fail');
+                const nextRank = ranks[gameState.rank + 2]; // 승진하려던 직급
+                gameOver(`승진 심사 탈락\n\n${nextRank} 승진에 필요한 업무능력: ${requiredWork}\n현재 업무능력: ${Math.floor(gameState.work)}\n\n업무 성과가 부족하여 승진에서 탈락했습니다.`);
+                return;
+            }
+
             gameState.rank++;
             gameState.currentEventIndex = 0;
             gameState.eventsCompletedInRank = 0;
