@@ -673,6 +673,10 @@
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
             }
+            // AudioContext가 suspended 상태면 resume
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
         }
 
         function playNote(frequency, startTime, duration) {
@@ -768,7 +772,9 @@
         };
 
         function playBackgroundMusic(type = 'normal') {
+            // 승진 팬파레는 항상 재생 (musicPlaying 무시)
             if (!audioContext) return;
+            if (!musicPlaying && type !== 'promotion') return;
 
             const now = audioContext.currentTime;
             const melody = musicMelodies[type] || musicMelodies.normal;
@@ -792,8 +798,9 @@
             const loopMusic = () => {
                 const musicType = getMusicType();
 
-                // 음악 타입이 변경되었을 때만 로그 (디버깅용)
+                // 음악 타입이 변경되었을 때 로그 출력 (디버깅용)
                 if (musicType !== currentMusicType) {
+                    console.log(`🎵 음악 변경: ${currentMusicType} → ${musicType} (체력: ${gameState.health})`);
                     currentMusicType = musicType;
                 }
 
@@ -813,16 +820,20 @@
             // 승진 팬파레는 일회성 재생
             if (!audioContext) return;
 
+            console.log('🎉 승진 팬파레 재생!');
+
             // 기존 루프 정지
             stopMusicLoop();
 
-            // 팬파레 재생
+            // 팬파레 재생 (musicPlaying과 무관하게 재생됨)
             playBackgroundMusic('promotion');
 
-            // 팬파레가 끝난 후 (5초 후) 일반 음악 루프 재시작
+            // 팬파레가 끝난 후 (5.5초 후) 일반 음악 루프 재시작
             setTimeout(() => {
                 currentMusicType = 'normal'; // 리셋
-                startMusicLoop();
+                if (musicPlaying) {
+                    startMusicLoop();
+                }
             }, 5500);
         }
 
@@ -839,9 +850,11 @@
             if (btn.textContent.includes('ON')) {
                 btn.textContent = '🔇 음악 OFF';
                 musicPlaying = false;
+                stopMusicLoop(); // 음악 루프 정지
             } else {
                 btn.textContent = '🔊 음악 ON';
-                playBackgroundMusic();
+                musicPlaying = true;
+                startMusicLoop(); // 음악 루프 시작
             }
         }
 
@@ -1421,6 +1434,7 @@
 
         function startGame() {
             initAudio();
+            musicPlaying = true; // 음악 재생 활성화
             playSound('select');
             startMusicLoop(); // 배경음악 루프 시작
             document.getElementById('startScreen').classList.add('hidden');
